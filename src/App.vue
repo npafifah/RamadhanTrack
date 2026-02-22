@@ -202,15 +202,16 @@ watch([tilawah, sholat, sedekah, qiyamul, dzikir, reflection, waterIntake, habit
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-          <div :class="['p-6 rounded-[2rem] border', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
-            <p class="text-[10px] font-black text-orange-400 mb-2 uppercase tracking-widest">Menu Sahur</p>
-            <textarea v-model="sahurMenu" rows="2" class="bg-transparent w-full text-xs outline-none resize-none" placeholder="Tulis menu..."></textarea>
-          </div>
-          <div :class="['p-6 rounded-[2rem] border', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
-            <p class="text-[10px] font-black text-emerald-500 mb-2 uppercase tracking-widest">Menu Buka</p>
-            <textarea v-model="iftarMenu" rows="2" class="bg-transparent w-full text-xs outline-none resize-none" placeholder="Tulis menu..."></textarea>
-          </div>
-        </div>
+  <div :class="['p-6 rounded-[2rem] border', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
+    <p class="text-[10px] font-black text-orange-400 mb-2 uppercase tracking-widest">Menu Sahur</p>
+    <textarea v-model="sahurMenu" rows="2" class="bg-transparent w-full text-xs outline-none resize-none" placeholder="Isi menu sahur..."></textarea>
+  </div>
+  
+  <div :class="['p-6 rounded-[2rem] border', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
+    <p class="text-[10px] font-black text-emerald-500 mb-2 uppercase tracking-widest">Menu Buka</p>
+    <textarea v-model="iftarMenu" rows="2" class="bg-transparent w-full text-xs outline-none resize-none" placeholder="Isi menu buka..."></textarea>
+  </div>
+</div>
 
         <div :class="['p-8 rounded-[2.5rem] border', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-xl']">
           <h3 class="text-[10px] font-black text-emerald-500 uppercase mb-4 tracking-widest italic">Catatan Muhasabah</h3>
