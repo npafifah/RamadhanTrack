@@ -87,7 +87,7 @@ function decreaseSholat() {
     
     <header class="mb-10">
       <h1 class="text-4xl font-bold text-emerald-400">
-        RamadhanTrack 🌙
+        RamadhanTrack 2026 🌙
       </h1>
       <p class="text-slate-400 mt-2">
         Smart Ibadah Productivity Dashboard
@@ -197,7 +197,9 @@ function decreaseSholat() {
           {{ qiyamul }} Malam
         </p>
       </div>
-
     </section>
+    <footer class="mt-16 text-center text-sm text-slate-500">
+  © 2026 RamadhanTrack • Built with Vue & Tailwind
+</footer>
   </div>
 </template>
