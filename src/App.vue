@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from "vue"
-import { Bar } from 'vue-chartjs'
+// Bar dihapus karena tidak dipakai di template agar tidak error TS6133
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 import axios from 'axios'
 
@@ -11,18 +11,16 @@ const activeTab = ref('dashboard')
 const isDark = ref(true)
 const RAMADAN_START = new Date("2026-02-17")
 
-// Stats & Main Data
 const tilawah = ref(0); const dzikir = ref(0); const waterIntake = ref(0)
 const reflection = ref(""); const sahurMenu = ref(""); const iftarMenu = ref("")
 const targetKhatam = ref(30); const mood = ref('🤲')
 const dailyPhoto = ref<string | null>(null)
 
-// Prayer & Interface
 const prayerTimes = ref<any>(null)
 const countdownText = ref("Memuat...")
 const showDuaModal = ref(false); const activeDuaTab = ref('Ramadhan')
 
-const MOOD_ENGINE: any = {
+const MOOD_ENGINE: Record<string, { label: string, ayat: string }> = {
   '😌': { label: 'Peaceful', ayat: '“Hanya dengan mengingat Allah hati menjadi tenteram.” (Ar-Ra’d: 28)' },
   '😔': { label: 'Sad', ayat: '“Janganlah kamu berduka cita, sesungguhnya Allah bersama kita.” (At-Taubah: 40)' },
   '🤲': { label: 'Grateful', ayat: '“Jika kamu bersyukur, niscaya Aku akan menambah (nikmat) kepadamu.” (Ibrahim: 7)' },
@@ -52,7 +50,7 @@ const dailyHabits = ref([
   { id: 9, text: "Menjaga Lisan", done: false, pts: 5 }
 ])
 
-/* ================= 2. LOGIC (PRAYER & XP) ================= */
+/* ================= 2. LOGIC ================= */
 const fetchPrayers = async () => {
   try {
     const res = await axios.get('https://api.aladhan.com/v1/timingsByCity?city=Jakarta&country=Indonesia&method=2')
@@ -70,7 +68,7 @@ const startCountdown = () => {
     if (diff > 0) {
       const hh = Math.floor(diff / 3600000); const mm = Math.floor((diff % 3600000) / 60000); const ss = Math.floor((diff % 60000) / 1000)
       countdownText.value = `${hh}j ${mm}m ${ss}s lagi buka!`
-    } else { countdownText.value = "Waktunya Berbuka! 🌙" }
+    } else { countdownText.value = "Selamat Berbuka! 🌙" }
   }, 1000)
 }
 
@@ -160,12 +158,12 @@ watch([tilawah, dzikir, reflection, waterIntake, sahurMenu, iftarMenu, mood, dai
 
       <section :class="['p-6 rounded-[2.5rem] border text-center', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
         <div class="flex justify-around mb-6">
-          <button v-for="(v, k) in MOOD_ENGINE" :key="k" @click="mood = k"
-            :class="['text-3xl transition-all', mood === k ? 'scale-125' : 'grayscale opacity-20']">{{ k }}</button>
+          <button v-for="(_, emoji) in MOOD_ENGINE" :key="emoji" @click="mood = String(emoji)"
+            :class="['text-3xl transition-all', mood === emoji ? 'scale-125' : 'grayscale opacity-20']">{{ emoji }}</button>
         </div>
         <div class="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
           <p class="text-[10px] font-black text-emerald-500 uppercase mb-1">AI Reflection</p>
-          <p class="text-xs italic opacity-80 leading-relaxed">{{ MOOD_ENGINE[mood].ayat }}</p>
+          <p class="text-xs italic opacity-80 leading-relaxed">{{ MOOD_ENGINE[mood]?.ayat }}</p>
         </div>
       </section>
 
@@ -228,7 +226,7 @@ watch([tilawah, dzikir, reflection, waterIntake, sahurMenu, iftarMenu, mood, dai
             <h3 class="text-4xl font-black italic">{{ tilawah }} <span class="text-xs not-italic opacity-30">/ {{ targetKhatam }} JUZ</span></h3>
             <button @click="tilawah++" class="w-12 h-12 bg-emerald-500 rounded-2xl text-black font-black">+</button>
           </div>
-          <input type="range" v-model="targetKhatam" min="1" max="60" class="w-full h-1.5 bg-slate-800 accent-emerald-500 rounded-full appearance-none">
+          <input type="range" v-model.number="targetKhatam" min="1" max="60" class="w-full h-1.5 bg-slate-800 accent-emerald-500 rounded-full appearance-none">
         </div>
 
         <div :class="['p-6 rounded-[2.5rem] border text-left', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
