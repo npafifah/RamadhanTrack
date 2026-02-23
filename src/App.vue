@@ -11,15 +11,12 @@ const activeTab = ref('dashboard')
 const isDark = ref(true)
 const RAMADAN_START = new Date("2026-02-17") 
 
-// --- STATE UTAMA (TIDAK ADA YANG DIHAPUS) ---
 const tilawah = ref(0); const dzikir = ref(0); const waterIntake = ref(0)
 const reflection = ref(""); const sahurMenu = ref(""); const iftarMenu = ref("")
 const targetKhatam = ref(30); const mood = ref('🤲')
 const dailyPhoto = ref<string | null>(null)
-
-// --- FITUR BARU ---
 const userCity = ref("Jakarta") 
-const favorites = ref<number[]>([]) 
+
 const prayerTimes = ref<any>(null)
 const countdownText = ref("Memuat...")
 const showDuaModal = ref(false); const activeDuaTab = ref('Ramadhan')
@@ -32,12 +29,11 @@ const MOOD_ENGINE: Record<string, { label: string, ayat: string }> = {
   '🌙': { label: 'Sleepy', ayat: 'Istirahatlah yang cukup, Afifah. Tubuhmu punya hak untuk dijaga.' }
 }
 
-const DUA_LIBRARY: any = {
+const DUA_LIBRARY: Record<string, Array<{title: string, ar: string, tr: string}>> = {
   Ramadhan: [
     { title: "Niat Puasa", ar: "نَوَيْتُ صَوْمَ غَدٍ عَنْ أَدَاءِ فَرْضِ شَهْرِ رَمَضَانَ هَذِهِ السَّنَةِ لِلَّهِ تَعَالَى", tr: "Nawaitu shauma ghadin..." },
     { title: "Doa Buka Puasa", ar: "ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الأَجْرُ إِنْ شَاءَ اللهُ", tr: "Dzahabaz zhama'u..." },
-    { title: "Doa Lailatul Qadar", ar: "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي", tr: "Allahumma innaka 'afuwwun..." },
-    { title: "Doa Sahur", ar: "يَرْحَمُ اللهُ الْمُتَسَحِّرِيْنَ", tr: "Semoga Allah merahmati orang yang sahur." }
+    { title: "Doa Lailatul Qadar", ar: "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي", tr: "Allahumma innaka 'afuwwun..." }
   ],
   Harian: [
     { title: "Sapu Jagad", ar: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ", tr: "Ya Tuhan kami..." }
@@ -68,7 +64,11 @@ const dayNumber = computed(() => {
   return diff > 0 ? (diff > 30 ? 30 : diff) : 1
 })
 
-const currentQuote = computed(() => DAILY_QUOTES[dayNumber.value % DAILY_QUOTES.length])
+const currentQuote = computed(() => {
+  const index = dayNumber.value % DAILY_QUOTES.length
+  return DAILY_QUOTES[index] || DAILY_QUOTES[0]
+})
+
 const isMalamGanjil = computed(() => [21, 23, 25, 27, 29].includes(dayNumber.value))
 const dailyProgress = computed(() => Math.round((dailyHabits.value.filter(h => h.done).length / dailyHabits.value.length) * 100))
 
@@ -86,6 +86,7 @@ const statusKhatam = computed(() => {
 const chartData = computed(() => ({
   labels: ['S', 'S', 'R', 'K', 'J', 'S', 'M'],
   datasets: [{
+    label: 'Progress',
     data: [65, 80, 45, 90, 70, 55, dailyProgress.value],
     backgroundColor: '#10b981',
     borderRadius: 8,
@@ -93,12 +94,12 @@ const chartData = computed(() => ({
   }]
 }))
 
-const chartOptions = computed(() => ({
+const chartOptions = computed<any>(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: { legend: { display: false } },
   scales: {
-    x: { grid: { display: false }, ticks: { color: isDark.value ? '#475569' : '#94a3b8', font: { size: 10, weight: '800' } } },
+    x: { grid: { display: false }, ticks: { color: isDark.value ? '#475569' : '#94a3b8', font: { size: 10, weight: 'bold' } } },
     y: { display: false, max: 100 }
   }
 }))
@@ -132,7 +133,7 @@ const totalXP = computed(() => {
 })
 
 const handlePhotoUpload = (e: any) => {
-  const file = e.target.files[0]
+  const file = e.target.files?.[0]
   if (file) {
     const reader = new FileReader()
     reader.onload = (ev) => { dailyPhoto.value = ev.target?.result as string }
@@ -146,12 +147,12 @@ onMounted(() => {
   const saved = localStorage.getItem("ramadhancore_v_final")
   if (saved) {
     const d = JSON.parse(saved)
-    tilawah.value = d.tilawah || 0; dzikir.value = d.dzikir || 0
-    reflection.value = d.reflection || ""; waterIntake.value = d.waterIntake || 0
-    sahurMenu.value = d.sahurMenu || ""; iftarMenu.value = d.iftarMenu || ""
-    mood.value = d.mood || '🤲'; dailyPhoto.value = d.dailyPhoto || null
-    targetKhatam.value = d.targetKhatam || 30
-    userCity.value = d.userCity || "Jakarta"
+    tilawah.value = d.tilawah ?? 0; dzikir.value = d.dzikir ?? 0
+    reflection.value = d.reflection ?? ""; waterIntake.value = d.waterIntake ?? 0
+    sahurMenu.value = d.sahurMenu ?? ""; iftarMenu.value = d.iftarMenu ?? ""
+    mood.value = d.mood ?? '🤲'; dailyPhoto.value = d.dailyPhoto ?? null
+    targetKhatam.value = d.targetKhatam ?? 30
+    userCity.value = d.userCity ?? "Jakarta"
     if(d.dailyHabits) dailyHabits.value = d.dailyHabits
   }
 })
@@ -247,7 +248,6 @@ watch([tilawah, dzikir, reflection, waterIntake, sahurMenu, iftarMenu, mood, dai
         <div :class="['p-6 rounded-[2.5rem] border', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
           <div class="flex justify-between items-center mb-6">
             <h4 class="text-[10px] font-black uppercase text-emerald-500 tracking-widest">Konsistensi Mingguan</h4>
-            <span class="text-[8px] opacity-40 font-black italic">AKTIF</span>
           </div>
           <div class="h-32">
             <Bar :data="chartData" :options="chartOptions" />
@@ -271,10 +271,8 @@ watch([tilawah, dzikir, reflection, waterIntake, sahurMenu, iftarMenu, mood, dai
       <div v-if="activeTab === 'ibadah'" class="space-y-6 animate-in">
         <div :class="['p-4 rounded-3xl border flex items-center gap-3', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
           <span class="text-lg">📍</span>
-          <input v-model="userCity" @change="fetchPrayers" placeholder="Masukkan Kota..." 
-            class="bg-transparent outline-none text-sm font-bold w-full uppercase tracking-widest">
+          <input v-model="userCity" @change="fetchPrayers" placeholder="Masukkan Kota..." class="bg-transparent outline-none text-sm font-bold w-full uppercase tracking-widest">
         </div>
-
         <div v-if="prayerTimes" class="grid grid-cols-2 gap-3">
           <div v-for="n in ['Imsak','Fajr','Dhuhr','Asr','Maghrib','Isha']" :key="n" 
             :class="['p-5 rounded-[2rem] border text-center', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
@@ -282,30 +280,24 @@ watch([tilawah, dzikir, reflection, waterIntake, sahurMenu, iftarMenu, mood, dai
             <p class="text-xl font-black text-emerald-500">{{ prayerTimes[n] }}</p>
           </div>
         </div>
-
         <div class="p-10 rounded-[3rem] border border-emerald-500/20 bg-emerald-500/5 text-center relative overflow-hidden">
-          <p class="text-[10px] font-black text-emerald-500 uppercase mb-2 tracking-widest italic">Digital Tasbih</p>
           <div class="text-8xl font-black mb-6 font-mono tracking-tighter text-emerald-500 drop-shadow-lg">{{ dzikir }}</div>
           <button @click="dzikir++" class="w-full py-12 bg-emerald-500 rounded-[2.5rem] text-3xl font-black shadow-xl active:scale-95 transition-all text-black uppercase">TAP</button>
-          <button @click="dzikir = 0" class="mt-4 text-[10px] opacity-20 font-bold uppercase tracking-widest">Reset Counter</button>
+          <button @click="dzikir = 0" class="mt-4 text-[10px] opacity-20 font-bold uppercase tracking-widest">Reset</button>
         </div>
-
         <div :class="['p-8 rounded-[2.5rem] border text-left', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
-          <p class="text-[10px] font-black text-blue-500 uppercase mb-4 tracking-widest">Hydration Reminder (8 Gelas)</p>
+          <p class="text-[10px] font-black text-blue-500 uppercase mb-4 tracking-widest">8 Gelas Air</p>
           <div class="grid grid-cols-8 gap-2">
-            <button v-for="i in 8" :key="i" @click="waterIntake = i" 
-              :class="['h-10 rounded-xl transition-all', waterIntake >= i ? 'bg-blue-500 shadow-lg' : 'bg-slate-800/20 opacity-20']"></button>
+            <button v-for="i in 8" :key="i" @click="waterIntake = i" :class="['h-10 rounded-xl transition-all', waterIntake >= i ? 'bg-blue-500 shadow-lg' : 'bg-slate-800/20 opacity-20']"></button>
           </div>
         </div>
       </div>
 
       <div v-if="activeTab === 'spirituil'" class="space-y-6 animate-in">
         <div :class="['p-6 rounded-[2.5rem] border bg-slate-900 border-slate-800 text-white overflow-hidden relative']">
-          <p class="text-[10px] font-black uppercase text-emerald-500 mb-4 tracking-widest">Smart Quran Tracker</p>
           <div class="flex justify-between items-end mb-6">
             <h3 class="text-5xl font-black italic">{{ tilawah }} <span class="text-xs not-italic opacity-30 uppercase">/ {{ targetKhatam }} Juz</span></h3>
             <div class="text-right">
-              <p class="text-[9px] font-bold opacity-40 uppercase">Saran Target</p>
               <p class="text-xl font-black text-emerald-400">{{ estimasiPerHari }} <span class="text-[10px]">Juz/Hari</span></p>
             </div>
           </div>
@@ -325,27 +317,26 @@ watch([tilawah, dzikir, reflection, waterIntake, sahurMenu, iftarMenu, mood, dai
         </div>
 
         <div :class="['p-6 rounded-[2.5rem] border text-left', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
-          <p class="text-[10px] font-black text-emerald-500 uppercase mb-4 tracking-widest">Daily Moment & Notes</p>
           <div v-if="!dailyPhoto" class="relative border-2 border-dashed border-slate-700 rounded-3xl h-32 flex flex-col items-center justify-center cursor-pointer mb-4">
             <input type="file" @change="handlePhotoUpload" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*">
             <span class="text-2xl mb-1">📸</span>
-            <span class="text-[9px] opacity-40 font-bold uppercase tracking-widest">Simpan Foto Hari Ini</span>
+            <span class="text-[9px] opacity-40 font-bold uppercase tracking-widest">Simpan Foto</span>
           </div>
-          <div v-else class="relative overflow-hidden rounded-3xl h-48 mb-4 group">
+          <div v-else class="relative overflow-hidden rounded-3xl h-48 mb-4">
             <img :src="dailyPhoto" class="w-full h-full object-cover">
-            <button @click="dailyPhoto = null" class="absolute top-2 right-2 bg-black/50 w-8 h-8 rounded-full text-xs transition-colors">✕</button>
+            <button @click="dailyPhoto = null" class="absolute top-2 right-2 bg-black/50 w-8 h-8 rounded-full text-xs">✕</button>
           </div>
-          <textarea v-model="reflection" class="bg-transparent w-full h-24 text-sm outline-none resize-none border-t border-slate-800/20 pt-4" placeholder="Apa yang kamu syukuri hari ini, Afifah?"></textarea>
+          <textarea v-model="reflection" class="bg-transparent w-full h-24 text-sm outline-none resize-none border-t border-slate-800/20 pt-4" placeholder="Apa yang kamu syukuri hari ini?"></textarea>
         </div>
 
         <div class="grid grid-cols-2 gap-4 text-left">
           <div :class="['p-6 rounded-[2rem] border', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
             <p class="text-[10px] font-black text-orange-400 mb-2 uppercase tracking-widest">Menu Sahur</p>
-            <input v-model="sahurMenu" class="bg-transparent w-full text-xs font-bold outline-none" placeholder="Rencana makan...">
+            <input v-model="sahurMenu" class="bg-transparent w-full text-xs font-bold outline-none" placeholder="...">
           </div>
           <div :class="['p-6 rounded-[2rem] border', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
             <p class="text-[10px] font-black text-emerald-500 mb-2 uppercase tracking-widest">Menu Buka</p>
-            <input v-model="iftarMenu" class="bg-transparent w-full text-xs font-bold outline-none" placeholder="Rencana makan...">
+            <input v-model="iftarMenu" class="bg-transparent w-full text-xs font-bold outline-none" placeholder="...">
           </div>
         </div>
 
@@ -353,9 +344,9 @@ watch([tilawah, dzikir, reflection, waterIntake, sahurMenu, iftarMenu, mood, dai
       </div>
     </main>
 
-    <nav :class="['fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-md p-2 rounded-[2.5rem] border flex justify-between z-50 backdrop-blur-xl transition-all', isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white/90 border-slate-200 shadow-2xl']">
+    <nav :class="['fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-md p-2 rounded-[2.5rem] border flex justify-between z-50 backdrop-blur-xl transition-all', isDark ? 'bg-slate-900/90 border-slate-800 shadow-2xl' : 'bg-white/90 border-slate-200 shadow-2xl shadow-emerald-500/10']">
       <button v-for="tab in ['dashboard', 'ibadah', 'spirituil']" :key="tab" @click="activeTab = tab"
-        :class="['flex-1 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all duration-300', activeTab === tab ? 'bg-emerald-500 text-white' : 'opacity-20']">
+        :class="['flex-1 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all duration-300', activeTab === tab ? 'bg-emerald-500 text-white shadow-lg' : 'opacity-20']">
         {{ tab }}
       </button>
     </nav>
@@ -364,19 +355,10 @@ watch([tilawah, dzikir, reflection, waterIntake, sahurMenu, iftarMenu, mood, dai
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Amiri&display=swap');
-
-* { 
-  font-family: 'Plus Jakarta Sans', sans-serif; 
-  -webkit-tap-highlight-color: transparent;
-  scrollbar-width: none;
-}
+* { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
 *::-webkit-scrollbar { display: none; }
 .animate-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 .font-serif { font-family: 'Amiri', serif; }
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  height: 16px; width: 16px; border-radius: 50%;
-  background: #10b981; cursor: pointer;
-}
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #10b981; cursor: pointer; }
 </style>
