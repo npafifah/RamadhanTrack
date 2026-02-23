@@ -65,8 +65,8 @@ const dayNumber = computed(() => {
 })
 
 const currentQuote = computed(() => {
-  const index = dayNumber.value % DAILY_QUOTES.length
-  return DAILY_QUOTES[index] || DAILY_QUOTES[0]
+  const index = (dayNumber.value - 1) % DAILY_QUOTES.length
+  return DAILY_QUOTES[index]
 })
 
 const isMalamGanjil = computed(() => [21, 23, 25, 27, 29].includes(dayNumber.value))
