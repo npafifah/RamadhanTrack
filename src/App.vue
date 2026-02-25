@@ -66,7 +66,7 @@ const dayNumber = computed(() => {
 
 const currentQuote = computed(() => {
   const index = (dayNumber.value - 1) % DAILY_QUOTES.length
-  return DAILY_QUOTES[index]
+  return DAILY_QUOTES[index] || DAILY_QUOTES[0] // Fallback agar tidak undefined
 })
 
 const isMalamGanjil = computed(() => [21, 23, 25, 27, 29].includes(dayNumber.value))
@@ -99,7 +99,13 @@ const chartOptions = computed<any>(() => ({
   maintainAspectRatio: false,
   plugins: { legend: { display: false } },
   scales: {
-    x: { grid: { display: false }, ticks: { color: isDark.value ? '#475569' : '#94a3b8', font: { size: 10, weight: 'bold' } } },
+    x: { 
+      grid: { display: false }, 
+      ticks: { 
+        color: isDark.value ? '#475569' : '#94a3b8', 
+        font: { size: 10, weight: 'bold' } // Fixed: Change 800 to 'bold'
+      } 
+    },
     y: { display: false, max: 100 }
   }
 }))
@@ -207,8 +213,8 @@ watch([tilawah, dzikir, reflection, waterIntake, sahurMenu, iftarMenu, mood, dai
 
         <div :class="['p-6 rounded-[2rem] border', isDark ? 'bg-slate-900 border-slate-800' : 'bg-white shadow-sm']">
           <p class="text-[8px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-2">Quote of the Day</p>
-          <p class="text-sm font-bold italic">"{{ currentQuote.text }}"</p>
-          <p class="text-[10px] opacity-40 mt-1">— {{ currentQuote.author }}</p>
+          <p class="text-sm font-bold italic">"{{ currentQuote?.text }}"</p>
+          <p class="text-[10px] opacity-40 mt-1">— {{ currentQuote?.author }}</p>
         </div>
 
         <div v-if="isMalamGanjil" class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center gap-3 animate-pulse">
@@ -307,8 +313,8 @@ watch([tilawah, dzikir, reflection, waterIntake, sahurMenu, iftarMenu, mood, dai
           <div class="flex justify-between items-center">
             <p class="text-[10px] font-black italic" :class="tilawah < dayNumber ? 'text-red-400' : 'text-emerald-400'">{{ statusKhatam }}</p>
             <div class="flex gap-2">
-               <button @click="tilawah > 0 ? tilawah-- : null" class="w-10 h-10 bg-slate-800 rounded-xl font-black text-lg">-</button>
-               <button @click="tilawah++" class="w-10 h-10 bg-emerald-500 rounded-xl text-black font-black text-lg">+</button>
+                <button @click="tilawah > 0 ? tilawah-- : null" class="w-10 h-10 bg-slate-800 rounded-xl font-black text-lg">-</button>
+                <button @click="tilawah++" class="w-10 h-10 bg-emerald-500 rounded-xl text-black font-black text-lg">+</button>
             </div>
           </div>
           <div class="mt-6 pt-4 border-t border-slate-800">
